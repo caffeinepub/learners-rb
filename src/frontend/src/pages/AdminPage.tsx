@@ -1,3 +1,4 @@
+import { UserRole } from "@/backend.d";
 import type { Chapter, Class, Lesson, Subject } from "@/backend.d";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +35,7 @@ import {
   useAddLesson,
   useAddSubject,
   useAllClasses,
+  useAssignRole,
   useChaptersBySubject,
   useDeleteChapter,
   useDeleteClass,
@@ -47,7 +49,16 @@ import {
   useUpdateLesson,
   useUpdateSubject,
 } from "@/hooks/useQueries";
-import { Loader2, Lock, Pencil, Plus, ShieldAlert, Trash2 } from "lucide-react";
+import { Principal } from "@icp-sdk/core/principal";
+import {
+  Loader2,
+  Lock,
+  Pencil,
+  Plus,
+  ShieldAlert,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -1051,6 +1062,122 @@ function LessonsTab() {
   );
 }
 
+// ---- Users Tab ----
+function UsersTab() {
+  const [principalInput, setPrincipalInput] = useState("");
+  const assignRole = useAssignRole();
+
+  async function handleGrant() {
+    let principal: Principal;
+    try {
+      principal = Principal.fromText(principalInput.trim());
+    } catch {
+      toast.error("Invalid Principal ID. Please check and try again.");
+      return;
+    }
+    try {
+      await assignRole.mutateAsync({ user: principal, role: UserRole.admin });
+      toast.success("Admin privileges granted successfully.");
+      setPrincipalInput("");
+    } catch {
+      toast.error("Failed to grant admin privileges.");
+    }
+  }
+
+  async function handleRevoke() {
+    let principal: Principal;
+    try {
+      principal = Principal.fromText(principalInput.trim());
+    } catch {
+      toast.error("Invalid Principal ID. Please check and try again.");
+      return;
+    }
+    try {
+      await assignRole.mutateAsync({ user: principal, role: UserRole.user });
+      toast.success("Admin privileges revoked.");
+      setPrincipalInput("");
+    } catch {
+      toast.error("Failed to revoke admin privileges.");
+    }
+  }
+
+  const isEmpty = principalInput.trim() === "";
+  const isPending = assignRole.isPending;
+
+  return (
+    <div className="max-w-lg">
+      <div className="flex items-center gap-2 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Users className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-bold text-lg leading-tight">Manage User Roles</h3>
+          <p className="text-muted-foreground text-xs">
+            Grant or revoke admin access for other users.
+          </p>
+        </div>
+      </div>
+
+      <div
+        className="rounded-xl border border-border bg-card p-6 space-y-5"
+        data-ocid="admin.users.panel"
+      >
+        <div className="space-y-2">
+          <Label htmlFor="principal-input">Principal ID</Label>
+          <Input
+            id="principal-input"
+            placeholder="e.g. aaaaa-aa or 2vxsx-fae..."
+            value={principalInput}
+            onChange={(e) => setPrincipalInput(e.target.value)}
+            disabled={isPending}
+            data-ocid="admin.users.input"
+          />
+          <p className="text-xs text-muted-foreground">
+            The user must sign in to the app and share their{" "}
+            <strong>Principal ID</strong> with you. They can find it on their
+            profile page after signing in.
+          </p>
+        </div>
+
+        <div className="flex gap-3">
+          <Button
+            onClick={handleGrant}
+            disabled={isEmpty || isPending}
+            className="flex-1"
+            data-ocid="admin.users.primary_button"
+          >
+            {isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : null}
+            Grant Admin
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleRevoke}
+            disabled={isEmpty || isPending}
+            className="flex-1"
+            data-ocid="admin.users.secondary_button"
+          >
+            {isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : null}
+            Revoke Admin
+          </Button>
+        </div>
+
+        {isPending && (
+          <p
+            className="text-xs text-muted-foreground text-center"
+            data-ocid="admin.users.loading_state"
+          >
+            Updating role on-chain, please wait...
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { identity } = useInternetIdentity();
   const { data: isAdmin, isLoading } = useIsAdmin();
@@ -1109,6 +1236,9 @@ export default function AdminPage() {
             <TabsTrigger value="lessons" data-ocid="admin.lessons.tab">
               Lessons
             </TabsTrigger>
+            <TabsTrigger value="users" data-ocid="admin.users.tab">
+              Users
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="classes">
             <ClassesTab />
@@ -1121,6 +1251,9 @@ export default function AdminPage() {
           </TabsContent>
           <TabsContent value="lessons">
             <LessonsTab />
+          </TabsContent>
+          <TabsContent value="users">
+            <UsersTab />
           </TabsContent>
         </Tabs>
       </motion.div>
