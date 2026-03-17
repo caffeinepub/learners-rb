@@ -1,0 +1,76 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 1rem;
+    --background: 0.99 0.005 220;
+    --foreground: 0.2 0.01 240;
+    --card: 1 0 0;
+    --card-foreground: 0.2 0.01 240;
+    --popover: 1 0 0;
+    --popover-foreground: 0.2 0.01 240;
+    --primary: 0.65 0.19 220;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.94 0.03 220;
+    --secondary-foreground: 0.2 0.01 240;
+    --muted: 0.95 0.01 220;
+    --muted-foreground: 0.48 0.01 240;
+    --accent: 0.94 0.04 220;
+    --accent-foreground: 0.2 0.01 240;
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 1 0 0;
+    --border: 0.9 0.02 220;
+    --input: 0.9 0.02 220;
+    --ring: 0.65 0.19 220;
+    --chart-1: 0.65 0.19 220;
+    --chart-2: 0.72 0.19 145;
+    --chart-3: 0.7 0.18 45;
+    --chart-4: 0.78 0.17 75;
+    --chart-5: 0.6 0.2 290;
+    --sidebar: 1 0 0;
+    --sidebar-foreground: 0.2 0.01 240;
+    --sidebar-primary: 0.65 0.19 220;
+    --sidebar-primary-foreground: 1 0 0;
+    --sidebar-accent: 0.94 0.03 220;
+    --sidebar-accent-foreground: 0.2 0.01 240;
+    --sidebar-border: 0.9 0.02 220;
+    --sidebar-ring: 0.65 0.19 220;
+    --sky: 0.65 0.19 220;
+    --orange: 0.7 0.18 45;
+    --green: 0.72 0.19 145;
+    --amber: 0.78 0.17 75;
+    --purple: 0.6 0.2 290;
+    --rose: 0.65 0.2 10;
+    --teal: 0.7 0.17 175;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .hero-gradient {
+    background: linear-gradient(
+      135deg,
+      oklch(0.95 0.04 220) 0%,
+      oklch(0.97 0.02 210) 100%
+    );
+  }
+
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+  }
+}
